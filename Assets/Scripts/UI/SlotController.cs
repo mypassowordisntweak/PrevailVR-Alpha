@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using FishNet.Object;
 
-public class SlotController : MonoBehaviour
+public class SlotController : MonoBehaviour, ISlot
 {
     public bool Hovering { get => isHovering; set => isHovering = value; }
     public Item HeldItem { get => heldItem; set => heldItem = value; }
@@ -34,9 +34,7 @@ public class SlotController : MonoBehaviour
     void Update()
     {
         if(isHoveringPrev != isHovering && isHovering)
-        {
             slotAudio.Play();
-        }
 
         if (isHovering) 
         {

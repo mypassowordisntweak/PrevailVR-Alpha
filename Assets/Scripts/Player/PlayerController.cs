@@ -26,9 +26,9 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.transform != null)
             {
-                if (hit.transform.GetComponent<SlotController>() != null)
+                if (hit.transform.GetComponent<ISlot>() != null)
                 {
-                    hit.transform.GetComponent<SlotController>().Hovering = true;
+                    hit.transform.GetComponent<ISlot>().Hovering = true;
                 }
             }
         }
