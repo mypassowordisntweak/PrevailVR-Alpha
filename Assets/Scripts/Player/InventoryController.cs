@@ -1,10 +1,12 @@
+using FishNet.Connection;
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class InventoryController : MonoBehaviour
+public class InventoryController : NetworkBehaviour
 {
     [SerializeField] private GameObject inventoryObject;
     [SerializeField] private Transform inventorySlotTransform;
@@ -16,7 +18,7 @@ public class InventoryController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        EventManager.openInventory += OpenFull;
+        EventManager.openInventory += CmdOpenInventory;
     }
 
     // Update is called once per frame
@@ -42,12 +44,12 @@ public class InventoryController : MonoBehaviour
 
         SlotController slot;
 
-        slot = list.Where(x => x.heldItem.itemType == item.itemType).FirstOrDefault();
+        slot = list.Where(x => x.HeldItem.itemType == item.itemType).FirstOrDefault();
         if(slot == null)
-            slot = list.Where(x => x.heldItem == null).FirstOrDefault();
+            slot = list.Where(x => x.HeldItem == null).FirstOrDefault();
 
         if (slot != null)
-            slot.heldItem = item;
+            slot.HeldItem = item;
     }
     #endregion
 
@@ -63,10 +65,7 @@ public class InventoryController : MonoBehaviour
             inventoryObject.transform.parent = transform.root;
             inventoryObject.SetActive(false);
             if (selectedSlot != null)
-            {
-                selectedSlot.isSelected = false;
                 selectedSlot = null;
-            }
         }
         else
         {
@@ -76,6 +75,21 @@ public class InventoryController : MonoBehaviour
             inventoryObject.SetActive(true);
             isInventoryOpen = true;
         }
+    }
+    #endregion
+
+    #region Network - Server
+    [ServerRpc]
+    void CmdOpenInventory(GameObject player)
+    {
+
+        RPCOpenFull(player);
+    }
+
+    [ObserversRpc]
+    private void RPCOpenFull(GameObject player)
+    {
+        OpenFull(player);
     }
     #endregion
 

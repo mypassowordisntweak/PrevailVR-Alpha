@@ -13,13 +13,17 @@ public class GamemodeTest : NetworkBehaviour
     [SerializeField] private GameObject PlayerPrefab;
     [SerializeField] private float RespawnTime;
 
+    private AudioSource backgroundMusic;
+
     public LayerMask GetLocalPlayerLayer { get => localPlayerLayerMask; }
 
 
     private void Start()
     {
         instance = this;
-        //Time.timeScale = 0.5f;
+
+        backgroundMusic = GetComponent<AudioSource>();
+
         if (Input.GetKeyDown(KeyCode.Pause))
             Debug.Break();
     }
@@ -28,6 +32,11 @@ public class GamemodeTest : NetworkBehaviour
     {
         if (Input.GetKeyUp(KeyCode.Pause))
             Debug.Break();
+    }
+
+    public void MuteMusic()
+    {
+        backgroundMusic.mute = !backgroundMusic.mute;
     }
 
     //public void DamageCharacter(ICharacter VictimCharacter, DamageInfo _DamageInfo, ICharacter AttackingCharacter = null)

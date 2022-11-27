@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerController))]
+
 public class DesktopMovement : NetworkBehaviour
 {
 
@@ -12,6 +14,8 @@ public class DesktopMovement : NetworkBehaviour
     [SerializeField] private float _Speed = 3f;
     [SerializeField] private Transform playerBody;
     [SerializeField] private Camera FPCamera;
+    [SerializeField] private GameObject leftHand;
+    [SerializeField] private GameObject rightHand;
 
     private CharacterController characterController;
     private PlayerController playerController;
@@ -43,8 +47,10 @@ public class DesktopMovement : NetworkBehaviour
 
         if (base.IsOwner)
         {
-            Cursor.lockState = CursorLockMode.Locked;
             characterController = GetComponent<CharacterController>();
+            playerController = GetComponent<PlayerController>();
+            Cursor.lockState = CursorLockMode.Locked;
+            FPCamera.gameObject.SetActive(true);
             Camera.main.gameObject.SetActive(false);
             //_PlayerController.PlayerCamera.gameObject.SetActive(true);
             //_PlayerController.Ragdoll.gameObject.SetActive(false);
@@ -61,7 +67,50 @@ public class DesktopMovement : NetworkBehaviour
         AimWithMouse();
         MoveWithKeyboard();
         CheckForGrounded();
+        CheckForEsc();
+        CheckForInventory();
+        CheckForGrabs();
+        CheckForInteracts();
+        CheckForHover();
+    }
 
+    private void CheckForHover()
+    {
+        playerController.CheckHover(Camera.main.gameObject);
+    }
+
+    private void CheckForInteracts()
+    {
+        if(Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            playerController.InteractPressed(leftHand);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            playerController.InteractPressed(rightHand);
+        }
+    }
+
+    private void CheckForGrabs()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            playerController.GrabPressed(leftHand);
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            playerController.GrabPressed(rightHand);
+        }
+    }
+
+    private void CheckForInventory()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            playerController.InventoryPressed();
+        }
     }
 
     /// <summary>
@@ -144,5 +193,19 @@ public class DesktopMovement : NetworkBehaviour
         //Set thisFrameMovement for the Animator
         thisFrameMovement[0] = movementX;
         thisFrameMovement[1] = movementY;
+    }
+
+    /// <summary>
+    /// Check if we are pressing Escape to do pause stuff
+    /// </summary>
+    private void CheckForEsc()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+                Cursor.lockState = CursorLockMode.None;
+            else
+                Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 }

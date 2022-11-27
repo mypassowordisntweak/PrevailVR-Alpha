@@ -7,30 +7,38 @@ using FishNet.Object;
 
 public class SlotController : MonoBehaviour
 {
-    public Image foreground;
-    public Image background;
-    public Text slotAmount;
-    public int slotNumber;
-    public bool isSelected;
-    public bool isLocked;
-    public Item heldItem;
+    public bool Hovering { get => isHovering; set => isHovering = value; }
+    public Item HeldItem { get => heldItem; set => heldItem = value; }
 
-    public bool isEquipmentSlot;
-    public int slotSize;
+    [SerializeField] private Image foreground;
+    [SerializeField] private Image background;
+    [SerializeField] private Text slotAmount;
 
-    public string UniqueString;
+    private bool isEquipmentSlot;
+    private bool isHovering;
+    private bool isHoveringPrev;
+    private bool isLocked;
     private float timeDelay;
+    private Item heldItem;
+
+    private AudioSource slotAudio;
 
     // Start is called before the first frame update
     void Start()
     {
         heldItem = null;
+        slotAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isSelected) 
+        if(isHoveringPrev != isHovering && isHovering)
+        {
+            slotAudio.Play();
+        }
+
+        if (isHovering) 
         {
             //Debug.Log("WE SELECTED");
             Color c = background.color;
@@ -43,6 +51,9 @@ public class SlotController : MonoBehaviour
             c.g = 0.431f;
             background.color = c;
         }
+
+        isHoveringPrev = isHovering;
+        isHovering = false;
     }
 
     public void UpdateSlot(Item item)
@@ -72,7 +83,7 @@ public class SlotController : MonoBehaviour
     public void EmptySlot()
     {
         //Debug.Log("EMPTYING SLOT");
-        isSelected = false;
+        isHovering = false;
         heldItem = null;
         foreground.sprite = null;
         Color c = foreground.color;
@@ -83,5 +94,10 @@ public class SlotController : MonoBehaviour
         {
             slotAmount.text = "";
         }
+    }
+
+    public void SlotClick()
+    {
+
     }
 }
