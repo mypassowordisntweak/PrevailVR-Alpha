@@ -46,10 +46,8 @@ public class WorldButton : MonoBehaviour, IInteractable, ISlot
         isHovering = false;
     }
 
-    public void Interact()
+    public void Interact(GameObject device)
     {
-        Debug.Log("INTERACTED");
-
         if(clicked != null)
             clicked.Invoke();
     }

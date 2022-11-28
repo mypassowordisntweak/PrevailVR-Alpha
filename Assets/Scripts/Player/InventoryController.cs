@@ -38,7 +38,7 @@ public class InventoryController : NetworkBehaviour
         return slotList;
     }
 
-    private void AddItem(Item item)
+    private void AddItem(ItemObject item)
     {
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
@@ -80,15 +80,16 @@ public class InventoryController : NetworkBehaviour
 
     #region Network - Server
     [ServerRpc]
-    void CmdOpenInventory(GameObject player)
+    void CmdOpenInventory(NetworkConnection conn)
     {
-
-        RPCOpenFull(player);
+        Debug.Log("Server opening inventory for: " + conn.FirstObject.gameObject.name);
+        RPCOpenFull(conn.FirstObject.gameObject);
     }
 
     [ObserversRpc]
     private void RPCOpenFull(GameObject player)
     {
+        Debug.Log("opening inventory for: " + player.name);
         OpenFull(player);
     }
     #endregion

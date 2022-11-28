@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 2105492518765483365}
   - component: {fileID: 7466465459514546741}
   - component: {fileID: 2215892357384104347}
+  - component: {fileID: 1699825658475197110}
   m_Layer: 0
   m_Name: RightHand
   m_TagString: Untagged
@@ -272,6 +273,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1699825658475197110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5948323063221708101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9034b863319c8f40ac9e5a2a0cdf2f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7625964742626649722
 GameObject:
   m_ObjectHideFlags: 0
@@ -680,6 +693,7 @@ GameObject:
   - component: {fileID: 9100437178491846751}
   - component: {fileID: 5908713288231664004}
   - component: {fileID: 3979524985863136099}
+  - component: {fileID: 6072471177198735315}
   m_Layer: 0
   m_Name: LeftHand
   m_TagString: Untagged
@@ -765,6 +779,18 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6072471177198735315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8707638260574913081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9034b863319c8f40ac9e5a2a0cdf2f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2479892200320309832
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -8,7 +8,7 @@ using FishNet.Object;
 public class SlotController : MonoBehaviour, ISlot
 {
     public bool Hovering { get => isHovering; set => isHovering = value; }
-    public Item HeldItem { get => heldItem; set => heldItem = value; }
+    public ItemObject HeldItem { get => heldItem; set => heldItem = value; }
 
     [SerializeField] private Image foreground;
     [SerializeField] private Image background;
@@ -19,7 +19,7 @@ public class SlotController : MonoBehaviour, ISlot
     private bool isHoveringPrev;
     private bool isLocked;
     private float timeDelay;
-    private Item heldItem;
+    private ItemObject heldItem;
 
     private AudioSource slotAudio;
 
@@ -54,14 +54,14 @@ public class SlotController : MonoBehaviour, ISlot
         isHovering = false;
     }
 
-    public void UpdateSlot(Item item)
+    public void UpdateSlot(ItemObject item)
     {
         foreground.sprite = item.itemSprite;
 
         //isSelected = false;
         heldItem = item;
 
-        if (heldItem.itemType != Item.ItemType.Null && !isEquipmentSlot)
+        if (heldItem.itemType != ItemType.Null && !isEquipmentSlot)
         {
             if (heldItem.amount > 1)
             {

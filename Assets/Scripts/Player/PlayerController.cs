@@ -1,16 +1,23 @@
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
+    public string PlayerName { get => playerName; }
+
     private bool isDesktop;
+    private string playerName;
 
     // Start is called before the first frame update
     void Start()
     {
         if (GetComponent<DesktopMovement>() != null)
             isDesktop = true;
+
+        playerName = Random.Range(1, 10000).ToString();
+        gameObject.name = playerName;
     }
 
     // Update is called once per frame
@@ -36,7 +43,7 @@ public class PlayerController : MonoBehaviour
 
     public void InventoryPressed()
     {
-        EventManager.OpenInventory(transform.root.gameObject);
+        EventManager.OpenInventory(base.Owner);
     }
 
     public void GrabPressed(GameObject device)
@@ -50,17 +57,33 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.transform != null)
             {
-                if(hit.transform.GetComponent<IInteractable>() != null)
+                if (hit.transform.GetComponent<IGrabbable>() != null)
                 {
-                    Debug.Log("CALLING INTERACT");
-                    hit.transform.GetComponent<IInteractable>().Interact();
+                    if(hit.transform.GetComponent<IGrabbable>().Grab(device))
+                    {
+                        device.GetComponent<ItemSocket>().HeldObject = hit.transform.gameObject;
+                    }
                 }
             }
         }
     }
 
-    public void InteractPressed(GameObject gameObject)
+    public void InteractPressed(GameObject device)
     {
+        GameObject deviceForward = isDesktop ? Camera.main.gameObject : device;
 
+        Debug.DrawLine(deviceForward.transform.position, deviceForward.transform.position + (deviceForward.transform.forward * 10), Color.green, 10f);
+
+        RaycastHit hit;
+        if (Physics.Raycast(deviceForward.transform.position, deviceForward.transform.forward, out hit, 10f))
+        {
+            if (hit.transform != null)
+            {
+                if (hit.transform.GetComponent<IInteractable>() != null)
+                {
+                    hit.transform.GetComponent<IInteractable>().Interact(device);
+                }
+            }
+        }
     }
 }

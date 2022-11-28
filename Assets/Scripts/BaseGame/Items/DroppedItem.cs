@@ -2,17 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DroppedItem : MonoBehaviour
+public class DroppedItem : MonoBehaviour, IGrabbable
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public ItemObject HeldItem { get => heldItem; set => heldItem = value; }
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField] private ItemObject heldItem;
+
+    public bool Grab(GameObject device)
     {
-        
+        InventoryController playerInventory = device.transform.root.GetComponent<InventoryController>();
+
+        if(playerInventory != null)
+        {
+
+        }
+
+        return false;
     }
 }
