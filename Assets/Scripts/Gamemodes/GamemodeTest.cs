@@ -12,6 +12,7 @@ public class GamemodeTest : NetworkBehaviour
     [SerializeField] private LayerMask localPlayerLayerMask;
     [SerializeField] private GameObject PlayerPrefab;
     [SerializeField] private float RespawnTime;
+    [SerializeField] private bool playBackgroundMusic;
 
     private AudioSource backgroundMusic;
 
@@ -24,8 +25,8 @@ public class GamemodeTest : NetworkBehaviour
 
         backgroundMusic = GetComponent<AudioSource>();
 
-        if (Input.GetKeyDown(KeyCode.Pause))
-            Debug.Break();
+        if (playBackgroundMusic)
+            backgroundMusic.Play();
     }
 
     private void Update()

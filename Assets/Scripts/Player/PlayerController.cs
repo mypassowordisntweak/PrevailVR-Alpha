@@ -59,7 +59,7 @@ public class PlayerController : NetworkBehaviour
             {
                 if (hit.transform.GetComponent<IGrabbable>() != null)
                 {
-                    if(hit.transform.GetComponent<IGrabbable>().Grab(device))
+                    if (hit.transform.GetComponent<IGrabbable>().Grab(device))
                     {
                         device.GetComponent<ItemSocket>().HeldObject = hit.transform.gameObject;
                     }

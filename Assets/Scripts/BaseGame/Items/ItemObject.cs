@@ -14,6 +14,12 @@ public class ItemObject
 
     public ItemType itemType { get => item.itemType; }
     public Sprite itemSprite { get => item.itemSprite; }
+
+    public ItemObject(ItemObject newItem)
+    {
+        item = newItem.item;
+        amount = newItem.amount;
+    }
 }
 
 //[System.Serializable]

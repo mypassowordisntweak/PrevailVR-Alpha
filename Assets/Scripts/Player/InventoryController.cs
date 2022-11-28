@@ -10,15 +10,18 @@ public class InventoryController : NetworkBehaviour
 {
     [SerializeField] private GameObject inventoryObject;
     [SerializeField] private Transform inventorySlotTransform;
+    [SerializeField] private AudioClip openCloseSound;
 
     private Vector3 inventoryLastPos;
     private bool isInventoryOpen;
     private SlotController selectedSlot;
+    private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
         EventManager.openInventory += CmdOpenInventory;
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -38,24 +41,39 @@ public class InventoryController : NetworkBehaviour
         return slotList;
     }
 
-    private void AddItem(ItemObject item)
+    public bool AddItem(ItemObject item)
     {
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
-        SlotController slot;
-
-        slot = list.Where(x => x.HeldItem.itemType == item.itemType).FirstOrDefault();
-        if(slot == null)
-            slot = list.Where(x => x.HeldItem == null).FirstOrDefault();
+        SlotController slot = (list.Where(x => x.HeldItem != null).Where(x => x.HeldItem.itemType == item.itemType)).FirstOrDefault();
 
         if (slot != null)
-            slot.HeldItem = item;
+        {
+            ItemObject tempItem = new ItemObject(slot.HeldItem);
+            tempItem.amount += item.amount;
+            slot.AddItemToSlot(tempItem);
+
+            return true;
+        }
+
+        if (slot == null)
+        {
+            slot = list.FirstOrDefault(x => x.HeldItem == null);
+            slot.AddItemToSlot(item);
+
+            return true;
+        }
+
+        return false;
     }
     #endregion
 
     #region Container Functions
     public void OpenFull(GameObject player)
     {
+        audioSource.clip = openCloseSound;
+        audioSource.Play();
+
         PlayerController playerController = player.GetComponent<PlayerController>();
         inventoryLastPos = Camera.main.transform.position + Camera.main.transform.forward;
 
@@ -82,15 +100,15 @@ public class InventoryController : NetworkBehaviour
     [ServerRpc]
     void CmdOpenInventory(NetworkConnection conn)
     {
-        Debug.Log("Server opening inventory for: " + conn.FirstObject.gameObject.name);
-        RPCOpenFull(conn.FirstObject.gameObject);
+        Debug.Log("Server opening inventory for: " + conn.ClientId);
+        RPCOpenFull(conn);
     }
 
     [ObserversRpc]
-    private void RPCOpenFull(GameObject player)
+    private void RPCOpenFull(NetworkConnection conn)
     {
-        Debug.Log("opening inventory for: " + player.name);
-        OpenFull(player);
+        Debug.Log("opening inventory for: " + conn.ClientId);
+        OpenFull(conn.FirstObject.gameObject);
     }
     #endregion
 

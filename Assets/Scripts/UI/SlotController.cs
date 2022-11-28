@@ -54,9 +54,10 @@ public class SlotController : MonoBehaviour, ISlot
         isHovering = false;
     }
 
-    public void UpdateSlot(ItemObject item)
+    public void AddItemToSlot(ItemObject item)
     {
-        foreground.sprite = item.itemSprite;
+        if(item.itemSprite != null)
+            foreground.sprite = item.itemSprite;
 
         //isSelected = false;
         heldItem = item;
