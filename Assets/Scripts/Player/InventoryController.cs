@@ -1,5 +1,6 @@
 using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,8 @@ using UnityEngine.Events;
 
 public class InventoryController : NetworkBehaviour
 {
+    [SyncObject] private readonly SyncDictionary<int, ItemObject> inventoryList = new SyncDictionary<int, ItemObject>();
+
     [SerializeField] private GameObject inventoryObject;
     [SerializeField] private Transform inventorySlotTransform;
     [SerializeField] private AudioClip openCloseSound;
@@ -24,6 +27,16 @@ public class InventoryController : NetworkBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        if(base.IsOwner)
+        {
+
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -31,40 +44,59 @@ public class InventoryController : NetworkBehaviour
     }
 
     #region Inventory Functions
+    private void UpdateSlots()
+    {
+        List<SlotController> list = GetSlotList(inventorySlotTransform);
+
+        foreach(KeyValuePair<int, ItemObject> pair in inventoryList)
+        {
+            list[pair.Key].SetItemObject(pair.Value);
+        }
+    }
+
     private List<SlotController> GetSlotList(Transform slotParent)
     {
         List<SlotController> slotList = new List<SlotController>();
         for (int i = 0; i < inventorySlotTransform.childCount; i++)
         {
-            slotList.Add(slotParent.GetChild(i).gameObject.GetComponent<SlotController>());
+            SlotController slot = slotParent.GetChild(i).gameObject.GetComponent<SlotController>();
+            slotList.Add(slot);
+            slot.Index = i;
+
         }
         return slotList;
     }
 
     public bool AddItem(ItemObject item)
     {
+
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
-        SlotController slot = (list.Where(x => x.HeldItem != null).Where(x => x.HeldItem.itemType == item.itemType)).FirstOrDefault();
+        SlotController slot = (list.Where(x => x.HeldItem != null).Where(x => x.HeldItem.ItemType == item.ItemType)).FirstOrDefault();
 
         if (slot != null)
         {
-            ItemObject tempItem = new ItemObject(slot.HeldItem);
-            tempItem.amount += item.amount;
-            slot.AddItemToSlot(tempItem);
+            ItemObject tempItem = new ItemObject(item);
+            tempItem.Amount += item.Amount;
 
-            return true;
-        }
+            if (inventoryList.Where(x => x.Key == slot.Index) != null)
+                inventoryList[slot.Index] = tempItem;
+            else
+                inventoryList.Add(slot.Index, tempItem);
 
-        if (slot == null)
+        } 
+        else if (slot == null)
         {
             slot = list.FirstOrDefault(x => x.HeldItem == null);
-            slot.AddItemToSlot(item);
 
-            return true;
+            if (inventoryList.Where(x => x.Key == slot.Index) != null)
+                inventoryList[slot.Index] = item;
+            else
+                inventoryList.Add(slot.Index, item);
         }
 
-        return false;
+        UpdateSlots();
+        return true;
     }
     #endregion
 
@@ -75,7 +107,7 @@ public class InventoryController : NetworkBehaviour
         audioSource.Play();
 
         PlayerController playerController = player.GetComponent<PlayerController>();
-        inventoryLastPos = Camera.main.transform.position + Camera.main.transform.forward;
+        inventoryLastPos = playerController.PlayerCamera.transform.position + playerController.PlayerCamera.transform.forward;
 
         if (isInventoryOpen)
         {
@@ -88,7 +120,7 @@ public class InventoryController : NetworkBehaviour
         else
         {
             inventoryObject.transform.position = inventoryLastPos;
-            inventoryObject.transform.LookAt(2 * inventoryObject.transform.position - Camera.main.transform.position);
+            inventoryObject.transform.LookAt(2 * inventoryObject.transform.position - playerController.PlayerCamera.transform.position);
             inventoryObject.transform.parent = null;
             inventoryObject.SetActive(true);
             isInventoryOpen = true;
@@ -98,18 +130,15 @@ public class InventoryController : NetworkBehaviour
 
     #region Network - Server
     [ServerRpc]
-    void CmdOpenInventory(NetworkConnection conn)
+    private void CmdOpenInventory(NetworkConnection conn)
     {
-        Debug.Log("Server opening inventory for: " + conn.ClientId);
         RPCOpenFull(conn);
     }
 
     [ObserversRpc]
     private void RPCOpenFull(NetworkConnection conn)
     {
-        Debug.Log("opening inventory for: " + conn.ClientId);
         OpenFull(conn.FirstObject.gameObject);
     }
     #endregion
-
 }

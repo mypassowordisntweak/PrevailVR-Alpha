@@ -6,7 +6,7 @@ public class DroppedItem : MonoBehaviour, IGrabbable
 {
     public ItemObject HeldItem { get => heldItem; set => heldItem = value; }
 
-    [SerializeField] private ItemObject heldItem;
+    public ItemObject heldItem;
     [SerializeField] private AudioClip audioClip;
 
     public bool Grab(GameObject device)

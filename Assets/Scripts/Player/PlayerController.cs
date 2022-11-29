@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerController : NetworkBehaviour
 {
     public string PlayerName { get => playerName; }
+    public Camera PlayerCamera { get => IsOwner ? Camera.main : (isDesktop ? GetComponent<DesktopMovement>().FPCamera : Camera.main); }
 
     private bool isDesktop;
     private string playerName;
@@ -25,7 +26,6 @@ public class PlayerController : NetworkBehaviour
     {
 
     }
-
     public void CheckHover(GameObject device)
     {
         RaycastHit hit;

@@ -13,9 +13,11 @@ public class GamemodeTest : NetworkBehaviour
     [SerializeField] private GameObject PlayerPrefab;
     [SerializeField] private float RespawnTime;
     [SerializeField] private bool playBackgroundMusic;
+    [SerializeField] private ItemList itemList;
 
     private AudioSource backgroundMusic;
 
+    public ItemList ListOfItems { get => itemList; }
     public LayerMask GetLocalPlayerLayer { get => localPlayerLayerMask; }
 
 

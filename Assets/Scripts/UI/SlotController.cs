@@ -4,22 +4,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 
 public class SlotController : MonoBehaviour, ISlot
 {
     public bool Hovering { get => isHovering; set => isHovering = value; }
     public ItemObject HeldItem { get => heldItem; set => heldItem = value; }
+    public int Index { get => slotIndex; set => slotIndex = value; }
 
     [SerializeField] private Image foreground;
     [SerializeField] private Image background;
     [SerializeField] private Text slotAmount;
 
-    private bool isEquipmentSlot;
+    //private bool isEquipmentSlot;
     private bool isHovering;
     private bool isHoveringPrev;
     private bool isLocked;
     private float timeDelay;
     private ItemObject heldItem;
+    private int slotIndex;
 
     private AudioSource slotAudio;
 
@@ -54,25 +57,30 @@ public class SlotController : MonoBehaviour, ISlot
         isHovering = false;
     }
 
-    public void AddItemToSlot(ItemObject item)
+    public void SetItemObject(ItemObject item)
     {
-        if(item.itemSprite != null)
-            foreground.sprite = item.itemSprite;
+        Debug.Log("SLOTCONTROLLER: " + item.item);
+        if (item.ItemType == ItemType.Null)
+            return;
+
+        if(item.ItemSprite != null)
+            foreground.sprite = item.ItemSprite;
 
         //isSelected = false;
         heldItem = item;
+        slotAmount.text = item.Amount.ToString();
 
-        if (heldItem.itemType != ItemType.Null && !isEquipmentSlot)
-        {
-            if (heldItem.amount > 1)
-            {
-                slotAmount.text = heldItem.amount.ToString();
-            }
-            else
-            {
-                slotAmount.text = "";
-            }
-        }
+        //if (heldItem.ItemType != ItemType.Null && !isEquipmentSlot)
+        //{
+        //    if (heldItem.Amount > 1)
+        //    {
+        //        slotAmount.text = heldItem.Amount.ToString();
+        //    }
+        //    else
+        //    {
+        //        slotAmount.text = "";
+        //    }
+        //}
 
         Color c = foreground.color;
         c.a = 1f;
@@ -89,10 +97,10 @@ public class SlotController : MonoBehaviour, ISlot
         c.a = 0;
         foreground.color = c;
 
-        if(!isEquipmentSlot)
-        {
-            slotAmount.text = "";
-        }
+        //if(!isEquipmentSlot)
+        //{
+        //    slotAmount.text = "";
+        //}
     }
 
     public void SlotClick()

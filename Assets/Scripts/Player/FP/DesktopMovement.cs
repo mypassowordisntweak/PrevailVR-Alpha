@@ -7,13 +7,14 @@ using UnityEngine;
 
 public class DesktopMovement : NetworkBehaviour
 {
+    public Camera FPCamera { get => MyCamera; }
 
     [SerializeField] private float mouseSens = 100f;
     [SerializeField] private float xRotation = 0f;
     [SerializeField] private float yRotation = 0f;
     [SerializeField] private float _Speed = 3f;
     [SerializeField] private Transform playerBody;
-    [SerializeField] private Camera FPCamera;
+    [SerializeField] private Camera MyCamera;
     [SerializeField] private GameObject leftHand;
     [SerializeField] private GameObject rightHand;
 

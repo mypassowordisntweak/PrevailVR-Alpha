@@ -12,13 +12,26 @@ public class ItemObject
     public Item item;
     public int amount;
 
-    public ItemType itemType { get => item.itemType; }
-    public Sprite itemSprite { get => item.itemSprite; }
+    public ItemType ItemType { get => item.itemType; }
+    public Sprite ItemSprite { get => item.itemSprite; }
+    public int Amount { get => amount; set => amount = value; }
 
-    public ItemObject(ItemObject newItem)
+    public ItemObject()
     {
-        item = newItem.item;
-        amount = newItem.amount;
+        item = new Item();
+        amount = 0;
+    }
+
+    public ItemObject(Item newItem)
+    {
+        item = newItem;
+        amount = 0;
+    }
+
+    public ItemObject(ItemObject newItemObject)
+    {
+        item = newItemObject.item;
+        amount = newItemObject.amount;
     }
 }
 
