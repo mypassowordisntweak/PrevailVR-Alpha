@@ -59,8 +59,8 @@ public class SlotController : MonoBehaviour, ISlot
 
     public void SetItemObject(ItemObject item)
     {
-        Debug.Log("SLOTCONTROLLER: " + item.item);
-        if (item.ItemType == ItemType.Null)
+
+        if (item.ItemType == ItemType.Null && item == null)
             return;
 
         if(item.ItemSprite != null)
@@ -69,6 +69,9 @@ public class SlotController : MonoBehaviour, ISlot
         //isSelected = false;
         heldItem = item;
         slotAmount.text = item.Amount.ToString();
+
+        Debug.Log("SLOT CONTROLLER " + Index + " | " + item.ItemType + " ||| " + HeldItem);
+
 
         //if (heldItem.ItemType != ItemType.Null && !isEquipmentSlot)
         //{

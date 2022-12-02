@@ -26,9 +26,10 @@ public class GamemodeTest : NetworkBehaviour
         instance = this;
 
         backgroundMusic = GetComponent<AudioSource>();
+        backgroundMusic.Play();
 
-        if (playBackgroundMusic)
-            backgroundMusic.Play();
+        if (!playBackgroundMusic)
+            MuteMusic();
     }
 
     private void Update()

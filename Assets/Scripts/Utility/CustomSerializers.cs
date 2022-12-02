@@ -19,7 +19,7 @@ public static class CustomSerializers
         Item tempItem = GamemodeTest.instance.ListOfItems.itemList.Where(x => x.itemType == itemType).FirstOrDefault();
         ItemObject tempItemObject = new ItemObject(tempItem);
 
-        tempItemObject.amount = reader.ReadInt32();
+        tempItemObject.Amount = reader.ReadInt32();
 
         return tempItemObject;
     }

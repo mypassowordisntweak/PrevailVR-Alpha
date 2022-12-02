@@ -9,18 +9,14 @@ using UnityEngine.UI;
 [System.Serializable]
 public class ItemObject
 {
-    public Item item;
-    public int amount;
+    [SerializeField] private Item item;
+    [SerializeField] public int amount;
 
-    public ItemType ItemType { get => item.itemType; }
+    public Item Item { get => item; }
+    public int StackSize { get => item.stackSize; }
+    public ItemType ItemType { get => item != null ? item.itemType : ItemType.Null; }
     public Sprite ItemSprite { get => item.itemSprite; }
     public int Amount { get => amount; set => amount = value; }
-
-    public ItemObject()
-    {
-        item = new Item();
-        amount = 0;
-    }
 
     public ItemObject(Item newItem)
     {

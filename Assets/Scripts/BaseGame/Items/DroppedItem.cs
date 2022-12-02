@@ -15,17 +15,16 @@ public class DroppedItem : MonoBehaviour, IGrabbable
 
         if (playerInventory != null)
         {
-            if(playerInventory.AddItem(heldItem))
-            {
-                GameObject tempObj = new GameObject();
-                tempObj.transform.position = transform.position;
-                tempObj.name = "PICKUP SOUND";
-                tempObj.AddComponent<AudioSource>().clip = audioClip;
-                tempObj.GetComponent<AudioSource>().Play();
-                Destroy(tempObj, 2);
-                Destroy(gameObject);
-                return true;
-            }
+            playerInventory.CmdAddItem(heldItem);
+            
+            GameObject tempObj = new GameObject();
+            tempObj.transform.position = transform.position;
+            tempObj.name = "PICKUP SOUND";
+            tempObj.AddComponent<AudioSource>().clip = audioClip;
+            tempObj.GetComponent<AudioSource>().Play();
+            Destroy(tempObj, 2);
+            Destroy(gameObject);
+            return true;
         }
 
         return false;

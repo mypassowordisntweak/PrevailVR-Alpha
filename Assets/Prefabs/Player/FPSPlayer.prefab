@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2836e36774ca1c4bbbee976e17b649c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 5
+  _componentIndexCache: 4
   _addedNetworkObject: {fileID: -2425422837420060354}
   _networkObjectCache: {fileID: -2425422837420060354}
   _synchronizeParent: 0
@@ -485,7 +485,6 @@ MonoBehaviour:
   - {fileID: 7021124636049457409}
   - {fileID: -6944020492413364556}
   - {fileID: -3825430041382051997}
-  - {fileID: 0}
   - {fileID: 6110782632819615809}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
@@ -876,7 +875,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6440317324494991668, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6440317324494991670, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
       propertyPath: m_RootOrder

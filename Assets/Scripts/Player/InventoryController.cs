@@ -25,15 +25,17 @@ public class InventoryController : NetworkBehaviour
     {
         EventManager.openInventory += CmdOpenInventory;
         audioSource = GetComponent<AudioSource>();
+
+        inventoryList.OnChange += UpdateSlots;
     }
 
     public override void OnStartClient()
     {
         base.OnStartClient();
 
-        if(base.IsOwner)
+        if(!base.IsOwner)
         {
-
+            inventoryObject.SetActive(false);
         }
     }
 
@@ -44,7 +46,7 @@ public class InventoryController : NetworkBehaviour
     }
 
     #region Inventory Functions
-    private void UpdateSlots()
+    private void UpdateSlots(SyncDictionaryOperation op, int key, ItemObject itemObject, bool asServer)
     {
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
@@ -69,33 +71,65 @@ public class InventoryController : NetworkBehaviour
 
     public bool AddItem(ItemObject item)
     {
-
         List<SlotController> list = GetSlotList(inventorySlotTransform);
+        List<SlotController> subList = list.Where(x => x.HeldItem != null).ToList();
+        List<SlotController> listWithValidMatchingSlots = list.Where(x => x.HeldItem != null && x.HeldItem.ItemType == item.ItemType && x.HeldItem.Amount < x.HeldItem.StackSize).ToList();
+        List<SlotController> listWithValidEmptySlots = list.Where(x => x.HeldItem == null).ToList();
 
-        SlotController slot = (list.Where(x => x.HeldItem != null).Where(x => x.HeldItem.ItemType == item.ItemType)).FirstOrDefault();
-
-        if (slot != null)
+        SlotController slot = null;
+        if(listWithValidMatchingSlots.Count > 0)
         {
-            ItemObject tempItem = new ItemObject(item);
-            tempItem.Amount += item.Amount;
-
-            if (inventoryList.Where(x => x.Key == slot.Index) != null)
-                inventoryList[slot.Index] = tempItem;
-            else
-                inventoryList.Add(slot.Index, tempItem);
-
-        } 
-        else if (slot == null)
+            slot = listWithValidMatchingSlots.First();
+        }
+        else if(listWithValidEmptySlots.Count > 0)
         {
-            slot = list.FirstOrDefault(x => x.HeldItem == null);
-
-            if (inventoryList.Where(x => x.Key == slot.Index) != null)
-                inventoryList[slot.Index] = item;
-            else
-                inventoryList.Add(slot.Index, item);
+            slot = listWithValidEmptySlots.First();
         }
 
-        UpdateSlots();
+        if (slot != null) //If we have a valid slot
+        {
+            Debug.Log("Slot " + slot.Index + " HeldItem == " + slot.HeldItem);
+            if(slot.HeldItem != null) //If our valid slot does not have an item
+            {
+                ItemObject tempItem = new ItemObject(item);
+
+                if ((slot.HeldItem.Amount + item.Amount) <= slot.HeldItem.StackSize)
+                {
+                    tempItem.Amount += item.Amount;
+
+                    if (inventoryList.Where(x => x.Key == slot.Index).Count() > 0)
+                    {
+                        inventoryList[slot.Index] = tempItem;
+                        Debug.Log("Slot " + slot.Index + " | " + inventoryList[slot.Index].Item.itemName + " OVERRIDE1 " + item.Item.itemName);
+                    }
+                    else
+                        inventoryList.Add(slot.Index, tempItem);
+                }
+                else
+                {
+                    int newAmount = slot.HeldItem.StackSize - slot.HeldItem.amount;
+                    slot.HeldItem.amount = slot.HeldItem.StackSize;
+                    item.Amount -= newAmount;
+
+                    AddItem(item);
+                }
+            }
+            else
+            {
+                if (inventoryList.Where(x => x.Key == slot.Index).Count() > 0)
+                {
+                    inventoryList[slot.Index] = item;
+                    Debug.Log("Slot " + slot.Index + " | " + inventoryList[slot.Index].Item.itemName + " OVERRIDE2 " + item.Item.itemName);
+                }
+                else
+                    inventoryList.Add(slot.Index, item);
+            }
+        }
+        else //If we do not have a valid slot
+        {
+            //Drop Item
+        }
+
         return true;
     }
     #endregion
@@ -135,10 +169,16 @@ public class InventoryController : NetworkBehaviour
         RPCOpenFull(conn);
     }
 
-    [ObserversRpc]
+    [ObserversRpc(BufferLast = true)]
     private void RPCOpenFull(NetworkConnection conn)
     {
         OpenFull(conn.FirstObject.gameObject);
+    }
+
+    [ServerRpc]
+    public void CmdAddItem(ItemObject item)
+    {
+        AddItem(item);
     }
     #endregion
 }
