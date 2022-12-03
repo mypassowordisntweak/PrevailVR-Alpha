@@ -7,10 +7,10 @@ using UnityEngine.Events;
 
 public class EventManager
 {
-    public static event Action<NetworkConnection> openInventory;
+    public static event Action<NetworkConnection> actionTemplate;
 
-    public static void OpenInventory(NetworkConnection player)
+    public static void TemplateAction(NetworkConnection player)
     {
-        openInventory?.Invoke(player);
+        actionTemplate?.Invoke(player);
     }
 }

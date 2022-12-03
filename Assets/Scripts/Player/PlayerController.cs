@@ -11,6 +11,8 @@ public class PlayerController : NetworkBehaviour
     private bool isDesktop;
     private string playerName;
 
+    private InventoryController inventoryController;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -19,6 +21,16 @@ public class PlayerController : NetworkBehaviour
 
         playerName = Random.Range(1, 10000).ToString();
         gameObject.name = playerName;
+
+        inventoryController = GetComponent<InventoryController>();
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+
+        if (IsOwner)
+            GamemodeTest.instance.LocalPlayer = base.Owner;
     }
 
     // Update is called once per frame
@@ -43,7 +55,7 @@ public class PlayerController : NetworkBehaviour
 
     public void InventoryPressed()
     {
-        EventManager.OpenInventory(base.Owner);
+        inventoryController.CmdOpenInventory(base.Owner);
     }
 
     public void GrabPressed(GameObject device)

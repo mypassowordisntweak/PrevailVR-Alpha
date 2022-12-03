@@ -11,22 +11,41 @@ public class DroppedItem : MonoBehaviour, IGrabbable
 
     public bool Grab(GameObject device)
     {
-        InventoryController playerInventory = device.transform.root.GetComponent<InventoryController>();
+        InventoryController playerInventory = GamemodeTest.instance.LocalPlayer.FirstObject.transform.root.GetComponent<InventoryController>();
 
         if (playerInventory != null)
         {
             playerInventory.CmdAddItem(heldItem);
-            
-            GameObject tempObj = new GameObject();
-            tempObj.transform.position = transform.position;
-            tempObj.name = "PICKUP SOUND";
-            tempObj.AddComponent<AudioSource>().clip = audioClip;
-            tempObj.GetComponent<AudioSource>().Play();
-            Destroy(tempObj, 2);
             Destroy(gameObject);
-            return true;
         }
 
-        return false;
+
+            //InventoryController playerInventory = device.transform.root.GetComponent<InventoryController>();
+            //
+            //if (playerInventory != null)
+            //{
+            //    playerInventory.CmdAddItem(heldItem);
+            //    
+            //    GameObject tempObj = new GameObject();
+            //    tempObj.transform.position = transform.position;
+            //    tempObj.name = "PICKUP SOUND";
+            //    tempObj.AddComponent<AudioSource>().clip = audioClip;
+            //    tempObj.GetComponent<AudioSource>().Play();
+            //    Destroy(tempObj, 2);
+            //    Destroy(gameObject);
+            //    return true;
+            //}
+
+            return false;
+    }
+
+    private void OnDestroy()
+    {
+        GameObject tempObj = new GameObject();
+        tempObj.transform.position = transform.position;
+        tempObj.name = "PICKUP SOUND";
+        tempObj.AddComponent<AudioSource>().clip = audioClip;
+        tempObj.GetComponent<AudioSource>().Play();
+        Destroy(tempObj, 2);
     }
 }

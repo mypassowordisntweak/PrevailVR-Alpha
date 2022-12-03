@@ -23,7 +23,6 @@ public class InventoryController : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        EventManager.openInventory += CmdOpenInventory;
         audioSource = GetComponent<AudioSource>();
 
         inventoryList.OnChange += UpdateSlots;
@@ -51,9 +50,7 @@ public class InventoryController : NetworkBehaviour
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
         foreach(KeyValuePair<int, ItemObject> pair in inventoryList)
-        {
             list[pair.Key].SetItemObject(pair.Value);
-        }
     }
 
     private List<SlotController> GetSlotList(Transform slotParent)
@@ -78,17 +75,12 @@ public class InventoryController : NetworkBehaviour
 
         SlotController slot = null;
         if(listWithValidMatchingSlots.Count > 0)
-        {
             slot = listWithValidMatchingSlots.First();
-        }
         else if(listWithValidEmptySlots.Count > 0)
-        {
             slot = listWithValidEmptySlots.First();
-        }
 
         if (slot != null) //If we have a valid slot
         {
-            Debug.Log("Slot " + slot.Index + " HeldItem == " + slot.HeldItem);
             if(slot.HeldItem != null) //If our valid slot does not have an item
             {
                 ItemObject tempItem = new ItemObject(item);
@@ -98,10 +90,7 @@ public class InventoryController : NetworkBehaviour
                     tempItem.Amount += item.Amount;
 
                     if (inventoryList.Where(x => x.Key == slot.Index).Count() > 0)
-                    {
                         inventoryList[slot.Index] = tempItem;
-                        Debug.Log("Slot " + slot.Index + " | " + inventoryList[slot.Index].Item.itemName + " OVERRIDE1 " + item.Item.itemName);
-                    }
                     else
                         inventoryList.Add(slot.Index, tempItem);
                 }
@@ -117,10 +106,7 @@ public class InventoryController : NetworkBehaviour
             else
             {
                 if (inventoryList.Where(x => x.Key == slot.Index).Count() > 0)
-                {
                     inventoryList[slot.Index] = item;
-                    Debug.Log("Slot " + slot.Index + " | " + inventoryList[slot.Index].Item.itemName + " OVERRIDE2 " + item.Item.itemName);
-                }
                 else
                     inventoryList.Add(slot.Index, item);
             }
@@ -164,7 +150,7 @@ public class InventoryController : NetworkBehaviour
 
     #region Network - Server
     [ServerRpc]
-    private void CmdOpenInventory(NetworkConnection conn)
+    public void CmdOpenInventory(NetworkConnection conn = null)
     {
         RPCOpenFull(conn);
     }

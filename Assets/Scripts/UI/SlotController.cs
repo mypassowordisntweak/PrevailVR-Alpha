@@ -70,9 +70,6 @@ public class SlotController : MonoBehaviour, ISlot
         heldItem = item;
         slotAmount.text = item.Amount.ToString();
 
-        Debug.Log("SLOT CONTROLLER " + Index + " | " + item.ItemType + " ||| " + HeldItem);
-
-
         //if (heldItem.ItemType != ItemType.Null && !isEquipmentSlot)
         //{
         //    if (heldItem.Amount > 1)

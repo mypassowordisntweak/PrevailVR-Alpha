@@ -1,3 +1,4 @@
+using FishNet.Connection;
 using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,23 +8,26 @@ public class GamemodeTest : NetworkBehaviour
 {
     public static GamemodeTest instance;
 
-    [SerializeField] private Camera SceneCamera;
+    [SerializeField] private Camera sceneCamera;
     [SerializeField] private LayerMask PlayerLayerMask;
     [SerializeField] private LayerMask localPlayerLayerMask;
-    [SerializeField] private GameObject PlayerPrefab;
-    [SerializeField] private float RespawnTime;
+    [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private float respawnTime;
     [SerializeField] private bool playBackgroundMusic;
     [SerializeField] private ItemList itemList;
+    [SerializeField] private NetworkConnection localPlayer;
 
     private AudioSource backgroundMusic;
 
     public ItemList ListOfItems { get => itemList; }
     public LayerMask GetLocalPlayerLayer { get => localPlayerLayerMask; }
+    public NetworkConnection LocalPlayer { get => localPlayer; set => localPlayer = value; }
 
 
     private void Start()
     {
         instance = this;
+        sceneCamera = Camera.main;
 
         backgroundMusic = GetComponent<AudioSource>();
         backgroundMusic.Play();
