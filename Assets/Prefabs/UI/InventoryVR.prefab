@@ -3839,6 +3839,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512ad525941836340b21f38856499f34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 3
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
   clicked:
     m_PersistentCalls:
       m_Calls: []
@@ -5170,6 +5173,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512ad525941836340b21f38856499f34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 1
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
   clicked:
     m_PersistentCalls:
       m_Calls: []
@@ -5331,6 +5337,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512ad525941836340b21f38856499f34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 2
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
   clicked:
     m_PersistentCalls:
       m_Calls: []
@@ -6377,6 +6386,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512ad525941836340b21f38856499f34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 0
+  _addedNetworkObject: {fileID: 0}
+  _networkObjectCache: {fileID: 0}
   clicked:
     m_PersistentCalls:
       m_Calls: []

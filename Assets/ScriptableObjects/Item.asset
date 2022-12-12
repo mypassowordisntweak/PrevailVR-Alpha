@@ -17,3 +17,4 @@ MonoBehaviour:
   itemName: NULL ITEM
   itemDescription: How can you see this? :O
   itemSprite: {fileID: 0}
+  itemGameObject: {fileID: 919132149155446097, guid: b79c19afdcda9674bb4d5356d6c8c4ce, type: 3}

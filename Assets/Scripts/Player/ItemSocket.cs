@@ -1,12 +1,17 @@
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemSocket : MonoBehaviour
+public class ItemSocket : NetworkBehaviour
 {
-    public ItemObject HeldItem { get => heldItem; set => heldItem = value; }
-    public GameObject HeldObject { get => heldObject; set => heldObject = value; }
+    public WorldObject HeldWorldObject { get => heldWorldObject; set => heldWorldObject = value; }
+    public ItemObject HeldItem { get => heldWorldObject != null ? heldWorldObject.heldItem : null; }
 
-    private ItemObject heldItem;
-    private GameObject heldObject;
+    private WorldObject heldWorldObject;
+
+    public void Start()
+    {
+        heldWorldObject = null;
+    }
 }

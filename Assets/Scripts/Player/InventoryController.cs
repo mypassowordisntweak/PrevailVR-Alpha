@@ -9,6 +9,8 @@ using UnityEngine.Events;
 
 public class InventoryController : NetworkBehaviour
 {
+    public SlotController SelectedSlot { get => selectedSlot; set => selectedSlot = value; }
+
     [SyncObject] private readonly SyncDictionary<int, ItemObject> inventoryList = new SyncDictionary<int, ItemObject>();
 
     [SerializeField] private GameObject inventoryObject;
@@ -26,6 +28,7 @@ public class InventoryController : NetworkBehaviour
         audioSource = GetComponent<AudioSource>();
 
         inventoryList.OnChange += UpdateSlots;
+        UpdateSlots(SyncDictionaryOperation.Complete, -1, null, false);
     }
 
     public override void OnStartClient()
@@ -49,8 +52,18 @@ public class InventoryController : NetworkBehaviour
     {
         List<SlotController> list = GetSlotList(inventorySlotTransform);
 
-        foreach(KeyValuePair<int, ItemObject> pair in inventoryList)
+        foreach(SlotController slot in list)
+        {
+            if(!inventoryList.ContainsKey(slot.Index))
+            {
+                slot.EmptySlot();
+            }
+        }
+
+        foreach (KeyValuePair<int, ItemObject> pair in inventoryList)
+        {
             list[pair.Key].SetItemObject(pair.Value);
+        }
     }
 
     private List<SlotController> GetSlotList(Transform slotParent)
@@ -66,18 +79,33 @@ public class InventoryController : NetworkBehaviour
         return slotList;
     }
 
-    public bool AddItem(ItemObject item)
+    public bool AddItem(ItemObject item, int slotIndex = -1)
     {
+        SlotController slot = null;
         List<SlotController> list = GetSlotList(inventorySlotTransform);
         List<SlotController> subList = list.Where(x => x.HeldItem != null).ToList();
         List<SlotController> listWithValidMatchingSlots = list.Where(x => x.HeldItem != null && x.HeldItem.ItemType == item.ItemType && x.HeldItem.Amount < x.HeldItem.StackSize).ToList();
         List<SlotController> listWithValidEmptySlots = list.Where(x => x.HeldItem == null).ToList();
 
-        SlotController slot = null;
-        if(listWithValidMatchingSlots.Count > 0)
-            slot = listWithValidMatchingSlots.First();
-        else if(listWithValidEmptySlots.Count > 0)
-            slot = listWithValidEmptySlots.First();
+        if(slotIndex > -1)
+        {
+            slot = GetSlotList(inventorySlotTransform).Where(x => x.Index == slotIndex).First();
+        }
+
+        //If we already selected a slot then make sure it isn't already occupied by a different item
+        if(slot != null)
+            if(slot.HeldItem != null)
+                if(slot.HeldItem.ItemType != item.ItemType)
+                    slot = null;
+
+        //If we haven't already selected a slot then select one
+        if(slot == null)
+        {
+            if (listWithValidMatchingSlots.Count > 0)
+                slot = listWithValidMatchingSlots.First();
+            else if (listWithValidEmptySlots.Count > 0)
+                slot = listWithValidEmptySlots.First();
+        }
 
         if (slot != null) //If we have a valid slot
         {
@@ -117,6 +145,25 @@ public class InventoryController : NetworkBehaviour
         }
 
         return true;
+    }
+
+    public bool RemoveItem(ItemObject itemObject, int slotIndex = -1)
+    {
+        SlotController slot = null;
+        if(slotIndex >= 0)
+        {
+            List<SlotController> slots = GetSlotList(inventorySlotTransform);
+            slot = slots.Where(x => x.HeldItem != null && x.HeldItem.ItemType == itemObject.ItemType && x.HeldItem.Amount == itemObject.Amount).First();
+        }
+
+        var list = inventoryList.Where(x => x.Key == slot.Index);
+        if(list.Count() > 0)
+        {
+            inventoryList.Remove(list.First());
+            return true;
+        }
+
+        return false;
     }
     #endregion
 
@@ -162,9 +209,15 @@ public class InventoryController : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void CmdAddItem(ItemObject item)
+    public void CmdAddItem(ItemObject item, int slotIndex = -1)
     {
-        AddItem(item);
+        AddItem(item, slotIndex);
+    }
+
+    [ServerRpc]
+    public void CmdRemoveItem(ItemObject item, int slotIndex)
+    {
+        RemoveItem(item, slotIndex);
     }
     #endregion
 }

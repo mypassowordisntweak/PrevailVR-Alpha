@@ -28,9 +28,6 @@ public class PlayerController : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-
-        if (IsOwner)
-            GamemodeTest.instance.LocalPlayer = base.Owner;
     }
 
     // Update is called once per frame
@@ -48,6 +45,14 @@ public class PlayerController : NetworkBehaviour
                 if (hit.transform.GetComponent<ISlot>() != null)
                 {
                     hit.transform.GetComponent<ISlot>().Hovering = true;
+                    if (hit.transform.GetComponent<SlotController>() != null)
+                    {
+                        inventoryController.SelectedSlot = hit.transform.GetComponent<SlotController>();
+                    }
+                }
+                else
+                {
+                    inventoryController.SelectedSlot = null;
                 }
             }
         }
@@ -58,44 +63,70 @@ public class PlayerController : NetworkBehaviour
         inventoryController.CmdOpenInventory(base.Owner);
     }
 
-    public void GrabPressed(GameObject device)
+    public void GrabPressed(bool IsDown, ItemSocket device)
     {
-        GameObject deviceForward = isDesktop ? Camera.main.gameObject : device;
+        GameObject deviceForward = isDesktop ? Camera.main.gameObject : device.gameObject;
 
         Debug.DrawLine(deviceForward.transform.position, deviceForward.transform.position + (deviceForward.transform.forward * 10), Color.green, 10f);
 
-        RaycastHit hit;
-        if (Physics.Raycast(deviceForward.transform.position, deviceForward.transform.forward, out hit, 10f))
+        if (IsDown)
         {
-            if (hit.transform != null)
+            if (inventoryController.SelectedSlot != null)
             {
-                if (hit.transform.GetComponent<IGrabbable>() != null)
+                if (inventoryController.SelectedSlot.HeldItem != null && device.HeldItem == null)
                 {
-                    if (hit.transform.GetComponent<IGrabbable>().Grab(device))
+                    DroppedItemBag worldObject = Instantiate(inventoryController.SelectedSlot.HeldItem.Item.itemGameObject, device.transform.position, device.transform.rotation).GetComponent<DroppedItemBag>();
+                    worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
+                    worldObject.CmdGrab(device.transform);
+
+                    inventoryController.CmdRemoveItem(inventoryController.SelectedSlot.HeldItem, inventoryController.SelectedSlot.Index);
+                }
+            }
+            else
+            {
+                RaycastHit hit;
+                if (Physics.Raycast(deviceForward.transform.position, deviceForward.transform.forward, out hit, 10f))
+                {
+                    if (hit.transform != null)
                     {
-                        device.GetComponent<ItemSocket>().HeldObject = hit.transform.gameObject;
+                        if (hit.transform.GetComponent<DroppedItemBag>() != null)
+                        {
+                            CmdCallGrab(device.GetComponent<NetworkObject>(),  hit.transform.GetComponent<NetworkObject>());
+                        }
                     }
+                }
+            }
+        }
+        else
+        {
+            if(device.HeldWorldObject != null)
+            {
+                if(inventoryController.SelectedSlot != null)
+                {
+                    inventoryController.CmdAddItem(device.HeldWorldObject.HeldItem, inventoryController.SelectedSlot.Index);
+                    Destroy(device.HeldWorldObject.gameObject);
+                }
+                else if (device.HeldWorldObject.Release(device))
+                {
+                    device.HeldWorldObject = null;
                 }
             }
         }
     }
 
-    public void InteractPressed(GameObject device)
+    public void InteractPressed(bool IsDown, ItemSocket device)
     {
-        GameObject deviceForward = isDesktop ? Camera.main.gameObject : device;
-
-        Debug.DrawLine(deviceForward.transform.position, deviceForward.transform.position + (deviceForward.transform.forward * 10), Color.green, 10f);
-
-        RaycastHit hit;
-        if (Physics.Raycast(deviceForward.transform.position, deviceForward.transform.forward, out hit, 10f))
+        if(device.HeldWorldObject != null)
         {
-            if (hit.transform != null)
-            {
-                if (hit.transform.GetComponent<IInteractable>() != null)
-                {
-                    hit.transform.GetComponent<IInteractable>().Interact(device);
-                }
-            }
+            device.HeldWorldObject.Interact(device.gameObject);
         }
+    }
+
+    [ServerRpc]
+    public void CmdCallGrab(NetworkObject device, NetworkObject itemToGrab)
+    {
+        DroppedItemBag worldObject = itemToGrab.transform.GetComponent<DroppedItemBag>();
+        worldObject.Grab(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
     }
 }

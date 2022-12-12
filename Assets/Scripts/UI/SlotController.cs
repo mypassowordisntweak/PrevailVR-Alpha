@@ -66,21 +66,8 @@ public class SlotController : MonoBehaviour, ISlot
         if(item.ItemSprite != null)
             foreground.sprite = item.ItemSprite;
 
-        //isSelected = false;
         heldItem = item;
         slotAmount.text = item.Amount.ToString();
-
-        //if (heldItem.ItemType != ItemType.Null && !isEquipmentSlot)
-        //{
-        //    if (heldItem.Amount > 1)
-        //    {
-        //        slotAmount.text = heldItem.Amount.ToString();
-        //    }
-        //    else
-        //    {
-        //        slotAmount.text = "";
-        //    }
-        //}
 
         Color c = foreground.color;
         c.a = 1f;
@@ -96,6 +83,7 @@ public class SlotController : MonoBehaviour, ISlot
         Color c = foreground.color;
         c.a = 0;
         foreground.color = c;
+        slotAmount.text = "";
 
         //if(!isEquipmentSlot)
         //{

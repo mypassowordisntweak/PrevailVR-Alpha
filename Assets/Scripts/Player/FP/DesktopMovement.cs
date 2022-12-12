@@ -28,6 +28,11 @@ public class DesktopMovement : NetworkBehaviour
     private float gravity;
     private float[] thisFrameMovement;
 
+    private bool interactLeftPressed;
+    private bool interactRightPressed;
+    private bool grabLeftPressed;
+    private bool grabRightPressed;
+
     private void Awake()
     {
         //_VelocityForNonRigidBodies = GetComponent<VelocityForNonRigidBodies>();
@@ -82,27 +87,51 @@ public class DesktopMovement : NetworkBehaviour
 
     private void CheckForInteracts()
     {
-        if(Input.GetKeyDown(KeyCode.Mouse0))
+        if(Input.GetKey(KeyCode.Mouse0) && !interactLeftPressed)
         {
-            playerController.InteractPressed(leftHand);
+            interactLeftPressed = true;
+            playerController.InteractPressed(interactLeftPressed, leftHand.GetComponent<ItemSocket>());
+        }
+        else if(!Input.GetKey(KeyCode.Mouse0) && interactLeftPressed)
+        {
+            interactLeftPressed = false;
+            playerController.InteractPressed(interactLeftPressed, leftHand.GetComponent<ItemSocket>());
         }
 
-        if (Input.GetKeyDown(KeyCode.Mouse1))
+        if (Input.GetKey(KeyCode.Mouse1) && !interactRightPressed)
         {
-            playerController.InteractPressed(rightHand);
+            interactRightPressed = true;
+            playerController.InteractPressed(interactRightPressed, rightHand.GetComponent<ItemSocket>());
+        }
+        else if (!Input.GetKey(KeyCode.Mouse1) && interactRightPressed)
+        {
+            interactRightPressed = false;
+            playerController.InteractPressed(interactRightPressed, rightHand.GetComponent<ItemSocket>());
         }
     }
 
     private void CheckForGrabs()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKey(KeyCode.Q) && !grabLeftPressed)
         {
-            playerController.GrabPressed(leftHand);
+            grabLeftPressed = true;
+            playerController.GrabPressed(grabLeftPressed, leftHand.GetComponent<ItemSocket>());
+        }
+        else if(!Input.GetKey(KeyCode.Q) && grabLeftPressed)
+        {
+            grabLeftPressed = false;
+            playerController.GrabPressed(grabLeftPressed, leftHand.GetComponent<ItemSocket>());
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKey(KeyCode.E) && !grabRightPressed)
         {
-            playerController.GrabPressed(rightHand);
+            grabRightPressed = true;
+            playerController.GrabPressed(grabRightPressed, rightHand.GetComponent<ItemSocket>());
+        }
+        else if (!Input.GetKey(KeyCode.E) && grabRightPressed)
+        {
+            grabRightPressed = false;
+            playerController.GrabPressed(grabRightPressed, rightHand.GetComponent<ItemSocket>());
         }
     }
 
