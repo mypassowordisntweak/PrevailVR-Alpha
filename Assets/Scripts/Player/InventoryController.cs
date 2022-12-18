@@ -50,7 +50,7 @@ public class InventoryController : NetworkBehaviour
     #region Inventory Functions
     private void UpdateSlots(SyncDictionaryOperation op, int key, ItemObject itemObject, bool asServer)
     {
-        List<SlotController> list = GetSlotList(inventorySlotTransform);
+        List<SlotController> list = GetSlotList();
 
         foreach(SlotController slot in list)
         {
@@ -66,12 +66,12 @@ public class InventoryController : NetworkBehaviour
         }
     }
 
-    private List<SlotController> GetSlotList(Transform slotParent)
+    public List<SlotController> GetSlotList()
     {
         List<SlotController> slotList = new List<SlotController>();
         for (int i = 0; i < inventorySlotTransform.childCount; i++)
         {
-            SlotController slot = slotParent.GetChild(i).gameObject.GetComponent<SlotController>();
+            SlotController slot = inventorySlotTransform.GetChild(i).gameObject.GetComponent<SlotController>();
             slotList.Add(slot);
             slot.Index = i;
 
@@ -79,17 +79,23 @@ public class InventoryController : NetworkBehaviour
         return slotList;
     }
 
+    public SlotController GetSlot(int SlotIndex)
+    {
+        List<SlotController> slotList = GetSlotList();
+        return slotList.Where(x => x.Index == SlotIndex) != null ? slotList.Where(x => x.Index == SlotIndex).First() : null;
+    }
+
     public bool AddItem(ItemObject item, int slotIndex = -1)
     {
         SlotController slot = null;
-        List<SlotController> list = GetSlotList(inventorySlotTransform);
+        List<SlotController> list = GetSlotList();
         List<SlotController> subList = list.Where(x => x.HeldItem != null).ToList();
         List<SlotController> listWithValidMatchingSlots = list.Where(x => x.HeldItem != null && x.HeldItem.ItemType == item.ItemType && x.HeldItem.Amount < x.HeldItem.StackSize).ToList();
         List<SlotController> listWithValidEmptySlots = list.Where(x => x.HeldItem == null).ToList();
 
         if(slotIndex > -1)
         {
-            slot = GetSlotList(inventorySlotTransform).Where(x => x.Index == slotIndex).First();
+            slot = GetSlotList().Where(x => x.Index == slotIndex).First();
         }
 
         //If we already selected a slot then make sure it isn't already occupied by a different item
@@ -152,7 +158,7 @@ public class InventoryController : NetworkBehaviour
         SlotController slot = null;
         if(slotIndex >= 0)
         {
-            List<SlotController> slots = GetSlotList(inventorySlotTransform);
+            List<SlotController> slots = GetSlotList();
             slot = slots.Where(x => x.HeldItem != null && x.HeldItem.ItemType == itemObject.ItemType && x.HeldItem.Amount == itemObject.Amount).First();
         }
 

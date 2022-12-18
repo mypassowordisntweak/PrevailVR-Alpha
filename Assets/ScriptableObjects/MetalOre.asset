@@ -17,4 +17,4 @@ MonoBehaviour:
   itemName: Metal Ore
   itemDescription: Metal Ore
   itemSprite: {fileID: 21300000, guid: 7db87700761c74c4d9067d575aacea06, type: 3}
-  itemGameObject: {fileID: 2468916932507093687, guid: 4769919ce13d1654b96b27dba98dd3b5, type: 3}
+  itemGameObject: {fileID: 7525842776994954286, guid: 261bd88c839dd65478954239f05b3314, type: 3}

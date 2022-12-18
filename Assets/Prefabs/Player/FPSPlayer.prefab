@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 7466465459514546741}
   - component: {fileID: 2215892357384104347}
   - component: {fileID: 1699825658475197110}
+  - component: {fileID: 9088788893795674935}
   m_Layer: 0
   m_Name: RightHand
   m_TagString: Untagged
@@ -285,6 +286,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9034b863319c8f40ac9e5a2a0cdf2f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 6
+  _addedNetworkObject: {fileID: -2425422837420060354}
+  _networkObjectCache: {fileID: -2425422837420060354}
+--- !u!114 &9088788893795674935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5948323063221708101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IsNested>k__BackingField: 1
+  <ComponentIndex>k__BackingField: 0
+  _networkBehaviours: []
+  <ParentNetworkObject>k__BackingField: {fileID: 0}
+  <ChildNetworkObjects>k__BackingField: []
+  _isNetworked: 1
+  _isGlobal: 0
+  _defaultDespawnType: 0
+  NetworkObserver: {fileID: 0}
+  <PrefabId>k__BackingField: -1
+  _scenePathHash: 0
+  <SceneId>k__BackingField: 0
+  <AssetPathHash>k__BackingField: 0
+  _sceneNetworkObjects: []
 --- !u!1 &7625964742626649722
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,8 +516,11 @@ MonoBehaviour:
   - {fileID: -6944020492413364556}
   - {fileID: -3825430041382051997}
   - {fileID: 6110782632819615809}
+  - {fileID: 6072471177198735315}
+  - {fileID: 1699825658475197110}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
-  <ChildNetworkObjects>k__BackingField: []
+  <ChildNetworkObjects>k__BackingField:
+  - {fileID: 0}
   _isNetworked: 1
   _isGlobal: 0
   _defaultDespawnType: 0
@@ -764,6 +797,7 @@ GameObject:
   - component: {fileID: 5908713288231664004}
   - component: {fileID: 3979524985863136099}
   - component: {fileID: 6072471177198735315}
+  - component: {fileID: 5641824409842227435}
   m_Layer: 0
   m_Name: LeftHand
   m_TagString: Untagged
@@ -861,6 +895,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9034b863319c8f40ac9e5a2a0cdf2f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _componentIndexCache: 5
+  _addedNetworkObject: {fileID: -2425422837420060354}
+  _networkObjectCache: {fileID: -2425422837420060354}
+--- !u!114 &5641824409842227435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8707638260574913081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b716c41e9b56b4baafaf13a523ba2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IsNested>k__BackingField: 1
+  <ComponentIndex>k__BackingField: 0
+  _networkBehaviours: []
+  <ParentNetworkObject>k__BackingField: {fileID: 0}
+  <ChildNetworkObjects>k__BackingField: []
+  _isNetworked: 1
+  _isGlobal: 0
+  _defaultDespawnType: 0
+  NetworkObserver: {fileID: 0}
+  <PrefabId>k__BackingField: -1
+  _scenePathHash: 0
+  <SceneId>k__BackingField: 0
+  <AssetPathHash>k__BackingField: 0
+  _sceneNetworkObjects: []
 --- !u!1001 &2479892200320309832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -869,6 +932,22 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 7625964743487671092}
     m_Modifications:
+    - target: {fileID: 11190731797166272, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
+      propertyPath: _addedNetworkObject
+      value: 
+      objectReference: {fileID: -2425422837420060354}
+    - target: {fileID: 1322972697752534976, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
+      propertyPath: _addedNetworkObject
+      value: 
+      objectReference: {fileID: -2425422837420060354}
+    - target: {fileID: 2506251383474507808, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
+      propertyPath: _addedNetworkObject
+      value: 
+      objectReference: {fileID: -2425422837420060354}
+    - target: {fileID: 6016426679597169748, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
+      propertyPath: _addedNetworkObject
+      value: 
+      objectReference: {fileID: -2425422837420060354}
     - target: {fileID: 6440317324494991668, guid: 2fb9287bf564f274caa07a56d4f58550, type: 3}
       propertyPath: m_Name
       value: InventoryVR

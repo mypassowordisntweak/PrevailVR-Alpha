@@ -729,7 +729,7 @@ MonoBehaviour:
     m_Bits: 0
   playerPrefab: {fileID: 0}
   respawnTime: 0
-  playBackgroundMusic: 1
+  playBackgroundMusic: 0
   itemList: {fileID: 11400000, guid: 10f552c740e3d454f9d95c228f485ba6, type: 2}
 --- !u!4 &1648008436
 Transform:
@@ -1035,6 +1035,14 @@ PrefabInstance:
       propertyPath: <SceneId>k__BackingField
       value: 2510022318542414405
       objectReference: {fileID: 0}
+    - target: {fileID: 7525842776994954273, guid: 4769919ce13d1654b96b27dba98dd3b5, type: 3}
+      propertyPath: _networkBehaviours.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7525842776994954273, guid: 4769919ce13d1654b96b27dba98dd3b5, type: 3}
+      propertyPath: _networkBehaviours.Array.data[1]
+      value: 
+      objectReference: {fileID: 1232030204}
     - target: {fileID: 7525842776994954273, guid: 4769919ce13d1654b96b27dba98dd3b5, type: 3}
       propertyPath: _sceneNetworkObjects.Array.data[1]
       value: 

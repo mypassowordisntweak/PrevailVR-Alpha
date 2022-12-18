@@ -75,11 +75,7 @@ public class PlayerController : NetworkBehaviour
             {
                 if (inventoryController.SelectedSlot.HeldItem != null && device.HeldItem == null)
                 {
-                    DroppedItemBag worldObject = Instantiate(inventoryController.SelectedSlot.HeldItem.Item.itemGameObject, device.transform.position, device.transform.rotation).GetComponent<DroppedItemBag>();
-                    worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
-                    worldObject.CmdGrab(device.transform);
-
-                    inventoryController.CmdRemoveItem(inventoryController.SelectedSlot.HeldItem, inventoryController.SelectedSlot.Index);
+                    CmdCallGrabFromInventory(inventoryController.SelectedSlot.Index, device.GetComponent<NetworkObject>());
                 }
             }
             else
@@ -89,7 +85,7 @@ public class PlayerController : NetworkBehaviour
                 {
                     if (hit.transform != null)
                     {
-                        if (hit.transform.GetComponent<DroppedItemBag>() != null)
+                        if (hit.transform.GetComponent<WorldObject>() != null)
                         {
                             CmdCallGrab(device.GetComponent<NetworkObject>(),  hit.transform.GetComponent<NetworkObject>());
                         }
@@ -101,14 +97,12 @@ public class PlayerController : NetworkBehaviour
         {
             if(device.HeldWorldObject != null)
             {
-                if(inventoryController.SelectedSlot != null)
+                if (device.HeldWorldObject.heldItem != null)
                 {
-                    inventoryController.CmdAddItem(device.HeldWorldObject.HeldItem, inventoryController.SelectedSlot.Index);
-                    Destroy(device.HeldWorldObject.gameObject);
-                }
-                else if (device.HeldWorldObject.Release(device))
-                {
-                    device.HeldWorldObject = null;
+                    if (inventoryController.SelectedSlot != null)
+                    {
+                        CmdCallReleaseIntoInventory(device.GetComponent<NetworkObject>());
+                    }
                 }
             }
         }
@@ -123,10 +117,92 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void CmdCallGrab(NetworkObject device, NetworkObject itemToGrab)
+    public void CmdCallGrabFromInventory(int SlotIndex, NetworkObject device)
     {
-        DroppedItemBag worldObject = itemToGrab.transform.GetComponent<DroppedItemBag>();
+        GameObject worldGameObject = Instantiate(HersuaGlobal.CreateDroppedItem(), device.transform.position, device.transform.rotation);
+        base.Spawn(worldGameObject);
+        WorldObject worldObject = worldGameObject.GetComponent<WorldObject>();
+        worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
         worldObject.Grab(device.GetComponent<ItemSocket>());
         device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
+
+        inventoryController.RemoveItem(inventoryController.SelectedSlot.HeldItem, inventoryController.SelectedSlot.Index);
+
+        RpcCallGrabFromInventory(SlotIndex, device, worldGameObject.GetComponent<NetworkObject>());
+    }
+
+    [ObserversRpc]
+    public void RpcCallGrabFromInventory(int SlotIndex, NetworkObject device, NetworkObject instantiatedObject)
+    {
+        if (base.IsServer)
+            return;
+
+        GameObject worldGameObject = instantiatedObject.gameObject;
+        WorldObject worldObject = worldGameObject.GetComponent<WorldObject>();
+        worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
+        worldObject.Grab(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
+    }
+
+
+    [ServerRpc]
+    public void CmdCallReleaseIntoInventory(NetworkObject device)
+    {
+        ItemSocket deviceItemSocket = device.GetComponent<ItemSocket>();
+
+        Debug.Log("Device " + device);
+        Debug.Log("WorldObject " + device.GetComponent<ItemSocket>().HeldWorldObject);
+
+        Debug.Log("InventoryController " + inventoryController);
+        Debug.Log("SelectedSlot " + inventoryController.SelectedSlot);
+
+        inventoryController.AddItem(deviceItemSocket.HeldWorldObject.HeldItem, inventoryController.SelectedSlot.Index);
+        Destroy(deviceItemSocket.HeldWorldObject.gameObject);
+        deviceItemSocket.HeldWorldObject = null;
+
+        RpcCallReleaseIntoInventory(device);
+    }
+
+    [ObserversRpc]
+    public void RpcCallReleaseIntoInventory(NetworkObject device)
+    {
+        ItemSocket deviceItemSocket = device.GetComponent<ItemSocket>();
+        deviceItemSocket.HeldWorldObject = null;
+    }
+
+    [ServerRpc]
+    public void CmdCallGrab(NetworkObject device, NetworkObject itemToGrab)
+    {
+        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        worldObject.Grab(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
+
+        RpcCallGrab(device, itemToGrab);
+    }
+
+    [ObserversRpc]
+    public void RpcCallGrab(NetworkObject device, NetworkObject itemToGrab)
+    {
+        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        worldObject.Grab(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
+    }
+
+    [ServerRpc]
+    public void CmdCallRelease(NetworkObject device, NetworkObject itemToGrab)
+    {
+        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        worldObject.Release(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = null;
+
+        RpcCallRelease(device, itemToGrab);
+    }
+
+    [ObserversRpc]
+    public void RpcCallRelease(NetworkObject device, NetworkObject itemToGrab)
+    {
+        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        worldObject.Release(device.GetComponent<ItemSocket>());
+        device.GetComponent<ItemSocket>().HeldWorldObject = null;
     }
 }
