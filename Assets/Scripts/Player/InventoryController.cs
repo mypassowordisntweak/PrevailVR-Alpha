@@ -9,7 +9,8 @@ using UnityEngine.Events;
 
 public class InventoryController : NetworkBehaviour
 {
-    public SlotController SelectedSlot { get => selectedSlot; set => selectedSlot = value; }
+
+    public GameObject InventoryObject { get => inventoryObject; }
 
     [SyncObject] private readonly SyncDictionary<int, ItemObject> inventoryList = new SyncDictionary<int, ItemObject>();
 
@@ -19,7 +20,6 @@ public class InventoryController : NetworkBehaviour
 
     private Vector3 inventoryLastPos;
     private bool isInventoryOpen;
-    private SlotController selectedSlot;
     private AudioSource audioSource;
 
     // Start is called before the first frame update
@@ -82,7 +82,7 @@ public class InventoryController : NetworkBehaviour
     public SlotController GetSlot(int SlotIndex)
     {
         List<SlotController> slotList = GetSlotList();
-        return slotList.Where(x => x.Index == SlotIndex) != null ? slotList.Where(x => x.Index == SlotIndex).First() : null;
+        return slotList.Where(x => x.Index == SlotIndex).Count() > 0 ? slotList.Where(x => x.Index == SlotIndex).First() : null;
     }
 
     public bool AddItem(ItemObject item, int slotIndex = -1)
@@ -176,6 +176,9 @@ public class InventoryController : NetworkBehaviour
     #region Container Functions
     public void OpenFull(GameObject player)
     {
+        if (audioSource == null)
+            return;
+
         audioSource.clip = openCloseSound;
         audioSource.Play();
 
@@ -187,8 +190,11 @@ public class InventoryController : NetworkBehaviour
             isInventoryOpen = false;
             inventoryObject.transform.parent = transform.root;
             inventoryObject.SetActive(false);
-            if (selectedSlot != null)
-                selectedSlot = null;
+            if (playerController.SelectedSlot != null)
+            {
+                playerController.SelectedSlot.Hovering = false;
+                playerController.SelectedSlot = null;
+            }
         }
         else
         {
@@ -205,13 +211,15 @@ public class InventoryController : NetworkBehaviour
     [ServerRpc]
     public void CmdOpenInventory(NetworkConnection conn = null)
     {
+        OpenFull(conn.FirstObject.gameObject);
         RPCOpenFull(conn);
     }
 
     [ObserversRpc(BufferLast = true)]
     private void RPCOpenFull(NetworkConnection conn)
     {
-        OpenFull(conn.FirstObject.gameObject);
+        if (!IsServer)
+            OpenFull(conn.FirstObject.gameObject);
     }
 
     [ServerRpc]

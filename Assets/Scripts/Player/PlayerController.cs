@@ -1,17 +1,36 @@
 using FishNet.Object;
+using FishNet.Object.Prediction;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
+    public struct ReplicateData
+    {
+        public int? _selectedSlotIndex;
+        public int selectedSlotIndex { get { return _selectedSlotIndex ?? -1; } set { _selectedSlotIndex = value; } }
+    }
+
+    public struct ReconcileData
+    {
+        public int? _selectedSlotIndex;
+
+        public int selectedSlotIndex { get { return _selectedSlotIndex ?? -1; } set { _selectedSlotIndex = value; } }
+    }
+
     public string PlayerName { get => playerName; }
     public Camera PlayerCamera { get => IsOwner ? Camera.main : (isDesktop ? GetComponent<DesktopMovement>().FPCamera : Camera.main); }
+    public SlotController SelectedSlot { get => selectedSlot; set => selectedSlot = value; }
+
 
     private bool isDesktop;
     private string playerName;
 
     private InventoryController inventoryController;
+
+    private SlotController selectedSlot;
+    private int _selectedSlotIndexQueue;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +54,103 @@ public class PlayerController : NetworkBehaviour
     {
 
     }
+
+    //Client Side Prediction ------------------------------------------------------------------------------------------------------------------------
+    public override void OnStartNetwork()
+    {
+        base.OnStartNetwork();
+        base.TimeManager.OnTick += TimeManager_OnTick;
+    }
+
+    public override void OnStopNetwork()
+    {
+        base.OnStopNetwork();
+        if (base.TimeManager != null)
+            base.TimeManager.OnTick -= TimeManager_OnTick;
+    }
+
+    private void TimeManager_OnTick()
+    {
+        if (base.IsOwner)
+        {
+            Reconcile(default, false);
+            BuildActions(out ReplicateData md);
+            Replicate(md, false);
+        }
+
+        if (base.IsServer)
+        {
+            Replicate(default, true);
+            ReconcileData rd = new ReconcileData()
+            {
+                selectedSlotIndex = selectedSlot != null ? selectedSlot.Index : -1
+            };
+            Reconcile(rd, true);
+        }
+    }
+
+    private void BuildActions(out ReplicateData moveData)
+    {
+        moveData = default;
+        moveData.selectedSlotIndex = _selectedSlotIndexQueue;
+
+        //Unset queued values.
+        _selectedSlotIndexQueue = -1;
+    }
+
+    [Replicate]
+    private void Replicate(ReplicateData moveData, bool asServer, bool replaying = false)
+    {
+        if (inventoryController == null)
+            return;
+
+        //If jumping move the character up one unit.
+        if (moveData.selectedSlotIndex > -1)
+        {
+            if(selectedSlot != null)
+            {
+                if(selectedSlot.Index != moveData.selectedSlotIndex)
+                {
+                    selectedSlot.Hovering = false;
+                }
+            }
+
+            selectedSlot = inventoryController.GetSlot(moveData.selectedSlotIndex);
+            selectedSlot.Hovering = true;
+
+            if (asServer || IsServer)
+                RpcUpdateSelectedSlot(moveData.selectedSlotIndex);
+        }
+        else
+        {
+            if(selectedSlot != null)
+            {
+                selectedSlot.Hovering = false;
+                selectedSlot = null;
+            }
+        }
+    }
+
+    [Reconcile]
+    private void Reconcile(ReconcileData recData, bool asServer)
+    {
+        //Reset the client to the received position. It's okay to do this
+        //even if there is no de-synchronization.
+
+        if (selectedSlot != null)
+            if (selectedSlot != inventoryController.GetSlot(recData.selectedSlotIndex))
+                selectedSlot.Hovering = false;
+
+        SlotController slot = inventoryController.GetSlot(recData.selectedSlotIndex);
+        selectedSlot = slot;
+        if(slot != null)
+            selectedSlot.Hovering = slot.Hovering;
+
+    }
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------
+
+
     public void CheckHover(GameObject device)
     {
         RaycastHit hit;
@@ -44,15 +160,22 @@ public class PlayerController : NetworkBehaviour
             {
                 if (hit.transform.GetComponent<ISlot>() != null)
                 {
-                    hit.transform.GetComponent<ISlot>().Hovering = true;
+                    if (hit.transform.root.GetComponent<NetworkObject>() != null)
+                        if (hit.transform.root != inventoryController.InventoryObject.transform)
+                            return;
+
                     if (hit.transform.GetComponent<SlotController>() != null)
                     {
-                        inventoryController.SelectedSlot = hit.transform.GetComponent<SlotController>();
+                        _selectedSlotIndexQueue = hit.transform.GetComponent<SlotController>().Index;
+
+                        //selectedSlot = hit.transform.GetComponent<SlotController>();
                     }
                 }
                 else
                 {
-                    inventoryController.SelectedSlot = null;
+                    _selectedSlotIndexQueue = -1;
+
+                    //selectedSlot = null;
                 }
             }
         }
@@ -71,11 +194,11 @@ public class PlayerController : NetworkBehaviour
 
         if (IsDown)
         {
-            if (inventoryController.SelectedSlot != null)
+            if (selectedSlot != null)
             {
-                if (inventoryController.SelectedSlot.HeldItem != null && device.HeldItem == null)
+                if (selectedSlot.HeldItem != null && device.HeldItem == null)
                 {
-                    CmdCallGrabFromInventory(inventoryController.SelectedSlot.Index, device.GetComponent<NetworkObject>());
+                    CmdCallGrabFromInventory(selectedSlot.Index, device.GetComponent<NetworkObject>());
                 }
             }
             else
@@ -99,7 +222,7 @@ public class PlayerController : NetworkBehaviour
             {
                 if (device.HeldWorldObject.heldItem != null)
                 {
-                    if (inventoryController.SelectedSlot != null)
+                    if (selectedSlot != null)
                     {
                         CmdCallReleaseIntoInventory(device.GetComponent<NetworkObject>());
                     }
@@ -116,17 +239,28 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    [ObserversRpc]
+    public void RpcUpdateSelectedSlot(int SlotIndex)
+    {
+        if (selectedSlot != null)
+            if (selectedSlot != inventoryController.GetSlot(SlotIndex))
+                selectedSlot.Hovering = false;
+
+        selectedSlot = inventoryController.GetSlot(SlotIndex);
+        selectedSlot.Hovering = true;
+    }
+
     [ServerRpc]
     public void CmdCallGrabFromInventory(int SlotIndex, NetworkObject device)
     {
         GameObject worldGameObject = Instantiate(HersuaGlobal.CreateDroppedItem(), device.transform.position, device.transform.rotation);
         base.Spawn(worldGameObject);
         WorldObject worldObject = worldGameObject.GetComponent<WorldObject>();
-        worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
+        worldObject.HeldItem = selectedSlot.HeldItem;
         worldObject.Grab(device.GetComponent<ItemSocket>());
         device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
 
-        inventoryController.RemoveItem(inventoryController.SelectedSlot.HeldItem, inventoryController.SelectedSlot.Index);
+        inventoryController.RemoveItem(selectedSlot.HeldItem, selectedSlot.Index);
 
         RpcCallGrabFromInventory(SlotIndex, device, worldGameObject.GetComponent<NetworkObject>());
     }
@@ -139,7 +273,7 @@ public class PlayerController : NetworkBehaviour
 
         GameObject worldGameObject = instantiatedObject.gameObject;
         WorldObject worldObject = worldGameObject.GetComponent<WorldObject>();
-        worldObject.HeldItem = inventoryController.SelectedSlot.HeldItem;
+        worldObject.HeldItem = selectedSlot.HeldItem;
         worldObject.Grab(device.GetComponent<ItemSocket>());
         device.GetComponent<ItemSocket>().HeldWorldObject = worldObject;
     }
@@ -154,9 +288,9 @@ public class PlayerController : NetworkBehaviour
         Debug.Log("WorldObject " + device.GetComponent<ItemSocket>().HeldWorldObject);
 
         Debug.Log("InventoryController " + inventoryController);
-        Debug.Log("SelectedSlot " + inventoryController.SelectedSlot);
+        Debug.Log("SelectedSlot " + selectedSlot);
 
-        inventoryController.AddItem(deviceItemSocket.HeldWorldObject.HeldItem, inventoryController.SelectedSlot.Index);
+        inventoryController.AddItem(deviceItemSocket.HeldWorldObject.HeldItem, selectedSlot.Index);
         Destroy(deviceItemSocket.HeldWorldObject.gameObject);
         deviceItemSocket.HeldWorldObject = null;
 

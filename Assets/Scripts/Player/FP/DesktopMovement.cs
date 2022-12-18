@@ -1,4 +1,5 @@
 ﻿using FishNet.Object;
+using FishNet.Object.Prediction;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine;
 
 public class DesktopMovement : NetworkBehaviour
 {
+
     public Camera FPCamera { get => MyCamera; }
 
     [SerializeField] private float mouseSens = 100f;
@@ -32,6 +34,9 @@ public class DesktopMovement : NetworkBehaviour
     private bool interactRightPressed;
     private bool grabLeftPressed;
     private bool grabRightPressed;
+
+    private bool _checkHoverQueued;
+
 
     private void Awake()
     {
@@ -69,6 +74,7 @@ public class DesktopMovement : NetworkBehaviour
     {
         if (!base.IsOwner)
             return;
+
 
         AimWithMouse();
         MoveWithKeyboard();

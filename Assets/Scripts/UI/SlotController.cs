@@ -54,7 +54,7 @@ public class SlotController : MonoBehaviour, ISlot
         }
 
         isHoveringPrev = isHovering;
-        isHovering = false;
+        //isHovering = false;
     }
 
     public void SetItemObject(ItemObject item)
