@@ -226,6 +226,10 @@ public class PlayerController : NetworkBehaviour
                     {
                         CmdCallReleaseIntoInventory(device.GetComponent<NetworkObject>());
                     }
+                    else
+                    {
+                        CmdCallRelease(device.NetworkObject);
+                    }
                 }
             }
         }
@@ -323,19 +327,29 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void CmdCallRelease(NetworkObject device, NetworkObject itemToGrab)
+    public void CmdCallRelease(NetworkObject device)
     {
-        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        WorldObject worldObject = null;
+        if (device.GetComponent<ItemSocket>().HeldWorldObject != null)
+            worldObject = device.GetComponent<ItemSocket>().HeldWorldObject;
+        else
+            return;
+
         worldObject.Release(device.GetComponent<ItemSocket>());
         device.GetComponent<ItemSocket>().HeldWorldObject = null;
 
-        RpcCallRelease(device, itemToGrab);
+        RpcCallRelease(device);
     }
 
     [ObserversRpc]
-    public void RpcCallRelease(NetworkObject device, NetworkObject itemToGrab)
+    public void RpcCallRelease(NetworkObject device)
     {
-        WorldObject worldObject = itemToGrab.transform.GetComponent<WorldObject>();
+        WorldObject worldObject = null;
+        if (device.GetComponent<ItemSocket>().HeldWorldObject != null)
+            worldObject = device.GetComponent<ItemSocket>().HeldWorldObject;
+        else
+            return;
+
         worldObject.Release(device.GetComponent<ItemSocket>());
         device.GetComponent<ItemSocket>().HeldWorldObject = null;
     }
